@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tinsae Ayalew — Computer Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0d13;
+    --bg-raised: #10141c;
+    --line: #1f2530;
+    --line-soft: #171c26;
+    --text: #e7eaf1;
+    --muted: #7c8699;
+    --dim: #4c5567;
+    --accent: #7c9eff;
+    --accent-soft: rgba(124,158,255,0.12);
+    --warm: #ffb86b;
+    --green: #6ee7b7;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    position:relative;
+  }
+
+  /* ---------- JELLYFISH POINTER BACKGROUND ---------- */
+  #blob-canvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+    pointer-events:none;
+    opacity:0.55;
+  }
+  nav, header.hero, section, footer{ position:relative; z-index:1; }
+  ::selection{ background:var(--accent-soft); color:var(--accent); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:2px; }
+
+  .wrap{ max-width:920px; margin:0 auto; padding:0 24px; }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(10,13,19,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line-soft);
+  }
+  nav .wrap{ display:flex; align-items:center; justify-content:space-between; height:60px; }
+  .logo{ font-family:var(--font-mono); font-size:14px; color:var(--text); font-weight:500; }
+  .logo span{ color:var(--accent); }
+  .navlinks{ display:flex; gap:28px; font-family:var(--font-mono); font-size:13px; color:var(--muted); }
+  .navlinks a{ position:relative; padding:4px 0; transition:color .2s; }
+  .navlinks a:hover{ color:var(--text); }
+  .navlinks a::before{ content:'./'; color:var(--dim); }
+  .navtoggle{ display:none; }
+
+  /* ---------- HERO / TERMINAL ---------- */
+  header.hero{ padding:80px 0 60px; }
+  .terminal{
+    background:var(--bg-raised);
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 30px 80px -30px rgba(0,0,0,0.6);
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:12px 16px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg, #12161f, #0f131a);
+  }
+  .dot{ width:10px; height:10px; border-radius:50%; }
+  .dot.r{ background:#ff5f56; } .dot.y{ background:#ffbd2e; } .dot.g{ background:#27c93f; }
+  .term-title{ margin-left:8px; font-family:var(--font-mono); font-size:12px; color:var(--muted); }
+  .term-body{ padding:28px 24px 32px; font-family:var(--font-mono); font-size:14px; }
+  .term-line{ color:var(--muted); margin-bottom:6px; }
+  .term-line .prompt{ color:var(--green); }
+  .term-line .path{ color:var(--accent); }
+  .term-output{ margin:14px 0 20px; }
+  .hero-name{
+    font-family:var(--font-display);
+    font-size:clamp(32px, 6vw, 54px);
+    font-weight:700;
+    line-height:1.1;
+    letter-spacing:-0.02em;
+    color:var(--text);
+  }
+  .hero-name .cursor{
+    display:inline-block; width:3px; height:0.9em; background:var(--accent);
+    margin-left:4px; vertical-align:-0.1em; animation:blink 1s step-end infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .hero-role{
+    margin-top:10px;
+    font-family:var(--font-mono);
+    font-size:15px;
+    color:var(--warm);
+  }
+  .hero-desc{
+    margin-top:18px;
+    max-width:56ch;
+    color:var(--muted);
+    font-size:15px;
+  }
+  .hero-tags{ margin-top:22px; display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{
+    font-family:var(--font-mono); font-size:12px; color:var(--accent);
+    background:var(--accent-soft); border:1px solid rgba(124,158,255,0.25);
+    padding:5px 10px; border-radius:5px;
+  }
+  .hero-cta{ margin-top:28px; display:flex; gap:12px; flex-wrap:wrap; }
+  .btn{
+    font-family:var(--font-mono); font-size:13px; padding:11px 18px; border-radius:6px;
+    border:1px solid var(--line); transition:all .2s ease; display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary{ background:var(--accent); color:#0a0d13; border-color:var(--accent); font-weight:600;}
+  .btn-primary:hover{ background:#94b0ff; transform:translateY(-1px); }
+  .btn-ghost{ color:var(--text); background:transparent; }
+  .btn-ghost:hover{ border-color:var(--accent); color:var(--accent); }
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section{ padding:64px 0; border-top:1px solid var(--line-soft); }
+  .sec-head{ display:flex; align-items:baseline; gap:14px; margin-bottom:36px; }
+  .sec-num{ font-family:var(--font-mono); font-size:13px; color:var(--dim); }
+  .sec-title{ font-family:var(--font-display); font-size:28px; font-weight:600; letter-spacing:-0.01em; }
+  .sec-comment{ font-family:var(--font-mono); font-size:12px; color:var(--dim); margin-left:auto; }
+
+  /* ---------- ABOUT ---------- */
+  .about-grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:48px; align-items:start; }
+  .about-text p{ color:var(--muted); margin-bottom:14px; font-size:15px; }
+  .about-text strong{ color:var(--text); font-weight:600; }
+  .fact-list{
+    font-family:var(--font-mono); font-size:13px;
+    background:var(--bg-raised); border:1px solid var(--line); border-radius:8px; padding:18px 20px;
+  }
+  .fact-row{ display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--line-soft); gap:16px; }
+  .fact-row:last-child{ border-bottom:none; }
+  .fact-key{ color:var(--dim); }
+  .fact-val{ color:var(--text); text-align:right; }
+
+  /* ---------- SKILLS ---------- */
+  .skills-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:16px; }
+  .skill-card{
+    background:var(--bg-raised); border:1px solid var(--line); border-radius:8px; padding:18px 20px;
+    transition:border-color .2s, transform .2s;
+  }
+  .skill-card:hover{ border-color:var(--accent); transform:translateY(-2px); }
+  .skill-cat{ font-family:var(--font-mono); font-size:11px; color:var(--warm); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+  .skill-items{ display:flex; flex-wrap:wrap; gap:6px; }
+  .skill-chip{ font-family:var(--font-mono); font-size:12px; color:var(--muted); background:var(--line-soft); padding:4px 9px; border-radius:4px; }
+
+  /* ---------- PROJECTS ---------- */
+  .project-list{ display:flex; flex-direction:column; gap:16px; }
+  .project-card{
+    background:var(--bg-raised); border:1px solid var(--line); border-radius:8px;
+    padding:22px 24px; display:grid; grid-template-columns:auto 1fr; gap:20px;
+    transition:border-color .2s;
+  }
+  .project-card:hover{ border-color:var(--accent); }
+  .project-idx{ font-family:var(--font-mono); font-size:12px; color:var(--dim); padding-top:3px; }
+  .project-name{ font-family:var(--font-display); font-size:18px; font-weight:600; margin-bottom:6px; }
+  .project-desc{ color:var(--muted); font-size:14px; margin-bottom:12px; }
+  .project-stack{ display:flex; flex-wrap:wrap; gap:6px; }
+  .stack-chip{ font-family:var(--font-mono); font-size:11px; color:var(--accent); border:1px solid rgba(124,158,255,0.25); padding:3px 8px; border-radius:4px; }
+  .project-note{ font-family:var(--font-mono); font-size:11px; color:var(--dim); margin-top:10px; }
+
+  /* ---------- EXPERIENCE ---------- */
+  .timeline{ border-left:1px solid var(--line); padding-left:28px; display:flex; flex-direction:column; gap:32px; }
+  .tl-item{ position:relative; }
+  .tl-item::before{
+    content:''; position:absolute; left:-33px; top:4px; width:9px; height:9px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--accent);
+  }
+  .tl-period{ font-family:var(--font-mono); font-size:12px; color:var(--dim); margin-bottom:4px; }
+  .tl-title{ font-family:var(--font-display); font-size:17px; font-weight:600; }
+  .tl-org{ font-size:13px; color:var(--warm); margin-bottom:6px; }
+  .tl-desc{ color:var(--muted); font-size:14px; max-width:60ch; }
+
+  /* ---------- CONTACT ---------- */
+  .contact-box{
+    background:var(--bg-raised); border:1px solid var(--line); border-radius:10px;
+    padding:40px 36px; text-align:center;
+  }
+  .contact-box h3{ font-family:var(--font-display); font-size:24px; margin-bottom:10px; }
+  .contact-box p{ color:var(--muted); font-size:14px; margin-bottom:24px; }
+  .contact-links{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+
+  footer{ padding:30px 0 50px; text-align:center; font-family:var(--font-mono); font-size:12px; color:var(--dim); }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 760px){
+    .navlinks{ display:none; }
+    .about-grid{ grid-template-columns:1fr; }
+    .project-card{ grid-template-columns:1fr; }
+    .project-idx{ display:none; }
+    .sec-comment{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="blob-canvas"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="logo">tinsae<span>.dev</span></div>
+    <div class="navlinks">
+      <a href="#about">about</a>
+      <a href="#skills">skills</a>
+      <a href="#projects">projects</a>
+      <a href="#experience">experience</a>
+      <a href="#contact">contact</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="terminal">
+      <div class="term-bar">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="term-title">tinsae@portfolio — zsh</span>
+      </div>
+      <div class="term-body">
+        <div class="term-line"><span class="prompt">➜</span> <span class="path">~</span> whoami</div>
+        <div class="term-output">
+          <div class="hero-name">Tinsae Ayalew<span class="cursor"></span></div>
+          <div class="hero-role">// Computer Science Student — Year 4 (starting September)</div>
+          <p class="hero-desc">I build software and explore how systems, algorithms, and interfaces fit together. Currently deep in coursework, side projects, and getting ready for my final year.</p>
+          <div class="hero-tags">
+            <span class="tag">#problem-solving</span>
+            <span class="tag">#software-dev</span>
+            <span class="tag">#always-learning</span>
+          </div>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#projects">view projects →</a>
+            <a class="btn btn-ghost" href="#contact">get in touch</a>
+          </div>
+        </div>
+        <div class="term-line"><span class="prompt">➜</span> <span class="path">~</span> <span style="opacity:.4">_</span></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2 class="sec-title">About</h2>
+      <span class="sec-comment">/* who I am */</span>
+    </div>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I'm <strong>Tinsae Ayalew</strong>, a Computer Science student currently finishing my third year — <strong>fourth year starts this September</strong>. Over the past few years I've built a solid foundation in programming, data structures, and how software actually gets built and shipped, not just theorized about.</p>
+        <p>I like projects that force me to learn something new — a language, a framework, a way of thinking about a problem. Right now I'm focused on strengthening my practical engineering skills ahead of my final year and figuring out where I want to specialize.</p>
+        <p>Outside of coursework, I spend time on personal projects, reading about new tools in the ecosystem, and steadily building toward a portfolio I'm proud to show.</p>
+      </div>
+      <div class="fact-list">
+        <div class="fact-row"><span class="fact-key">status</span><span class="fact-val">Year 3 → Year 4 (Sept)</span></div>
+        <div class="fact-row"><span class="fact-key">field</span><span class="fact-val">Computer Science</span></div>
+        <div class="fact-row"><span class="fact-key">focus</span><span class="fact-val">Software Development</span></div>
+        <div class="fact-row"><span class="fact-key">location</span><span class="fact-val">Addis Ababa, ET</span></div>
+        <div class="fact-row"><span class="fact-key">availability</span><span class="fact-val">Open to opportunities</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2 class="sec-title">Skills</h2>
+      <span class="sec-comment">/* tools I reach for */</span>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <div class="skill-cat">Languages</div>
+        <div class="skill-items">
+          <span class="skill-chip">Python</span>
+          <span class="skill-chip">Java</span>
+          <span class="skill-chip">C++</span>
+          <span class="skill-chip">JavaScript</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat">Web</div>
+        <div class="skill-items">
+          <span class="skill-chip">HTML/CSS</span>
+          <span class="skill-chip">React</span>
+          <span class="skill-chip">Node.js</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat">CS Fundamentals</div>
+        <div class="skill-items">
+          <span class="skill-chip">Data Structures</span>
+          <span class="skill-chip">Algorithms</span>
+          <span class="skill-chip">OOP</span>
+          <span class="skill-chip">Databases</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat">Automation &amp; Trading</div>
+        <div class="skill-items">
+          <span class="skill-chip">Trading Bots</span>
+          <span class="skill-chip">MQL4/5 EAs</span>
+          <span class="skill-chip">Excel/VBA</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat">Tools</div>
+        <div class="skill-items">
+          <span class="skill-chip">Git/GitHub</span>
+          <span class="skill-chip">Linux</span>
+          <span class="skill-chip">VS Code</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2 class="sec-title">Projects</h2>
+      <span class="sec-comment">/* things I've built */</span>
+    </div>
+    <div class="project-list">
+      <div class="project-card">
+        <div class="project-idx">01</div>
+        <div>
+          <div class="project-name">Simple ERP</div>
+          <p class="project-desc">A lightweight but functionally complete ERP system covering Inventory, Purchasing, Sales, HR, and Accounting. Every sale, purchase, or payroll run updates stock and posts to the general ledger in one transaction — relational integrity and double-entry accounting instead of a disconnected CRUD demo.</p>
+          <div class="project-stack">
+            <span class="stack-chip">Node.js</span>
+            <span class="stack-chip">Express</span>
+            <span class="stack-chip">SQL Server</span>
+            <span class="stack-chip">EJS</span>
+          </div>
+          <div class="project-note"><a href="https://github.com/Asant444/simple-erp" target="_blank" rel="noopener" style="color:var(--accent)">github.com/Asant444/simple-erp →</a></div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-idx">02</div>
+        <div>
+          <div class="project-name">StudyPartner</div>
+          <p class="project-desc">A web app that helps students find and connect with study partners based on course, schedule, and learning goals — with shared study rooms, session scheduling, and progress tracking to keep group study on track.</p>
+          <div class="project-stack">
+            <span class="stack-chip">React</span>
+            <span class="stack-chip">Node.js</span>
+            <span class="stack-chip">MongoDB</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-idx">03</div>
+        <div>
+          <div class="project-name">Smart Parking Management System</div>
+          <p class="project-desc">A C++ system that simulates vehicle entry, slot allocation, and exit tracking end to end — focused on procedural logic building and memory handling over a console interface.</p>
+          <div class="project-stack">
+            <span class="stack-chip">C++</span>
+          </div>
+          <div class="project-note"><a href="https://github.com/Asant444/parking-system" target="_blank" rel="noopener" style="color:var(--accent)">github.com/Asant444/parking-system →</a></div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-idx">04</div>
+        <div>
+          <div class="project-name">Cafe Management System</div>
+          <p class="project-desc">A console-based Java system simulating café operations — menu selection, order processing, and bill calculation — built to practice core OOP design (classes, control structures, methods).</p>
+          <div class="project-stack">
+            <span class="stack-chip">Java</span>
+            <span class="stack-chip">OOP</span>
+          </div>
+          <div class="project-note"><a href="https://github.com/Asant444/cafe-system-" target="_blank" rel="noopener" style="color:var(--accent)">github.com/Asant444/cafe-system- →</a></div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-idx">05</div>
+        <div>
+          <div class="project-name">Barber Shop Booking System</div>
+          <p class="project-desc">A booking/management system for a barbershop — handling appointment scheduling, customer records, and day-to-day shop operations.</p>
+          <div class="project-stack">
+            <span class="stack-chip">JavaScript</span>
+            <span class="stack-chip">HTML/CSS</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-idx">06</div>
+        <div>
+          <div class="project-name">Trading Bots</div>
+          <p class="project-desc">A collection of automated trading bots for executing strategies on market data without manual intervention — covering signal logic, order execution, and risk rules.</p>
+          <div class="project-stack">
+            <span class="stack-chip">Python</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-idx">07</div>
+        <div>
+          <div class="project-name">MetaTrader Expert Advisors</div>
+          <p class="project-desc">Custom Expert Advisors (EAs) built for MetaTrader to automate trade entries/exits based on defined technical strategies and risk management rules.</p>
+          <div class="project-stack">
+            <span class="stack-chip">MQL4/5</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-idx">08</div>
+        <div>
+          <div class="project-name">Excel Help Sheet</div>
+          <p class="project-desc">A set of Excel tools and templates with automated formulas and layouts, built to make repetitive spreadsheet tasks (tracking, calculations, reporting) faster to do correctly.</p>
+          <div class="project-stack">
+            <span class="stack-chip">Excel</span>
+            <span class="stack-chip">VBA</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-idx">09</div>
+        <div>
+          <div class="project-name">UI/UX Pro Max Skill (Claude Free Plan)</div>
+          <p class="project-desc">A packaged Claude skill bringing unified UI/UX design guidance — design systems, styling, branding, banners, and slides — to users on Claude's free plan.</p>
+          <div class="project-stack">
+            <span class="stack-chip">Claude Skills</span>
+            <span class="stack-chip">Markdown</span>
+          </div>
+          <div class="project-note"><a href="https://github.com/Asant444/ui-ux-pro-max-skill-for-cloud-free-plan-" target="_blank" rel="noopener" style="color:var(--accent)">github.com/Asant444/ui-ux-pro-max-skill-for-cloud-free-plan- →</a></div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-idx">10</div>
+        <div>
+          <div class="project-name">Algorithm Visualizer</div>
+          <p class="project-desc">An interactive tool that animates sorting and pathfinding algorithms (bubble sort, quicksort, Dijkstra, BFS/DFS) step by step, built to make coursework concepts easier to reason about visually.</p>
+          <div class="project-stack">
+            <span class="stack-chip">JavaScript</span>
+            <span class="stack-chip">HTML/CSS</span>
+            <span class="stack-chip">Canvas API</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-idx">11</div>
+        <div>
+          <div class="project-name">Personal Portfolio Site</div>
+          <p class="project-desc">This site — a terminal-themed personal portfolio built from scratch with a custom animated pointer-reactive background, designed to showcase my work as I head into my final year.</p>
+          <div class="project-stack">
+            <span class="stack-chip">HTML</span>
+            <span class="stack-chip">CSS</span>
+            <span class="stack-chip">JavaScript</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2 class="sec-title">Experience</h2>
+      <span class="sec-comment">/* the path so far */</span>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-period">Sept 2026 — Present</div>
+        <div class="tl-title">4th Year, B.Sc. Computer Science</div>
+        <div class="tl-org">University</div>
+        <div class="tl-desc">Final year of my degree — advanced coursework, capstone project, and preparing for the transition into industry.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-period">2023 — 2026</div>
+        <div class="tl-title">1st – 3rd Year, B.Sc. Computer Science</div>
+        <div class="tl-org">University</div>
+        <div class="tl-desc">Built a foundation in programming, algorithms, data structures, databases, and software engineering principles.</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-period">Ongoing</div>
+        <div class="tl-title">Self-directed Projects &amp; Learning</div>
+        <div class="tl-org">Independent</div>
+        <div class="tl-desc">Working on personal projects and exploring new frameworks/tools outside of coursework to build practical skills.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2 class="sec-title">Contact</h2>
+      <span class="sec-comment">/* let's talk */</span>
+    </div>
+    <div class="contact-box">
+      <h3>Let's connect</h3>
+      <p>Open to internships, collaborations, and interesting problems to work on.</p>
+      <div class="contact-links">
+        <a class="btn btn-primary" href="mailto:tinsaeaya22@gmail.com">email me</a>
+        <a class="btn btn-ghost" href="https://github.com/yourusername" target="_blank" rel="noopener">github</a>
+        <a class="btn btn-ghost" href="https://linkedin.com/in/yourusername" target="_blank" rel="noopener">linkedin</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  built by Tinsae Ayalew — <span id="year"></span>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ---------- Jellyfish pointer background ----------
+  (function(){
+    const canvas = document.getElementById('blob-canvas');
+    const ctx = canvas.getContext('2d');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let w, h, dpr;
+    function resize(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = window.innerWidth; h = window.innerHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const colors = [
+      { h: 226, s: 100, l: 74 }, // accent blue
+      { h: 28,  s: 100, l: 72 }, // warm amber
+      { h: 158, s: 64,  l: 68 }, // mint green
+      { h: 265, s: 85,  l: 72 }  // violet
+    ];
+
+    // Blobs: each trails the pointer with its own spring/lag + wobble, giving a jellyfish feel
+    const blobs = colors.map((c, i) => ({
+      x: w/2, y: h/2,
+      tx: w/2, ty: h/2,
+      baseR: 220 + i*40,
+      color: c,
+      lag: 0.035 + i*0.015,
+      wobble: Math.random()*1000,
+      wobbleSpeed: 0.004 + i*0.0015,
+      offsetAngle: (Math.PI*2/colors.length)*i,
+      offsetDist: 60 + i*25
+    }));
+
+    let pointer = { x: w/2, y: h/2 };
+    let hasPointer = false;
+
+    window.addEventListener('pointermove', (e) => {
+      pointer.x = e.clientX; pointer.y = e.clientY;
+      hasPointer = true;
+    }, { passive:true });
+
+    // gentle ambient drift target when no pointer interaction yet (mobile / idle)
+    let t = 0;
+
+    function frame(){
+      t += 1;
+      ctx.clearRect(0,0,w,h);
+      ctx.globalCompositeOperation = 'lighter';
+
+      const driftX = w/2 + Math.cos(t*0.002)*w*0.15;
+      const driftY = h/2 + Math.sin(t*0.0017)*h*0.15;
+      const targetX = hasPointer ? pointer.x : driftX;
+      const targetY = hasPointer ? pointer.y : driftY;
+
+      blobs.forEach((b) => {
+        b.wobble += b.wobbleSpeed;
+        const ox = Math.cos(b.wobble + b.offsetAngle) * b.offsetDist;
+        const oy = Math.sin(b.wobble * 1.3 + b.offsetAngle) * b.offsetDist;
+        b.tx = targetX + ox;
+        b.ty = targetY + oy;
+        // spring/lag toward target = jelly-like trailing motion
+        b.x += (b.tx - b.x) * b.lag;
+        b.y += (b.ty - b.y) * b.lag;
+
+        const r = b.baseR + Math.sin(b.wobble*1.6) * 30;
+        const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, r);
+        grad.addColorStop(0, `hsla(${b.color.h}, ${b.color.s}%, ${b.color.l}%, 0.35)`);
+        grad.addColorStop(1, `hsla(${b.color.h}, ${b.color.s}%, ${b.color.l}%, 0)`);
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, r, 0, Math.PI*2);
+        ctx.fill();
+      });
+
+      ctx.globalCompositeOperation = 'source-over';
+      requestAnimationFrame(frame);
+    }
+
+    if (!reduceMotion){
+      requestAnimationFrame(frame);
+    } else {
+      // static single soft glow, no animation
+      ctx.globalCompositeOperation = 'lighter';
+      blobs.forEach(b=>{
+        const grad = ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,300);
+        grad.addColorStop(0, `hsla(${b.color.h}, ${b.color.s}%, ${b.color.l}%, 0.15)`);
+        grad.addColorStop(1, `hsla(${b.color.h}, ${b.color.s}%, ${b.color.l}%, 0)`);
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.arc(w/2,h/2,300,0,Math.PI*2); ctx.fill();
+      });
+    }
+  })();
+</script>
+
+</body>
+</html>
