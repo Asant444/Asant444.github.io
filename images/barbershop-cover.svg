@@ -35,7 +35,7 @@
 
   <!-- title block -->
   <text x="260" y="210" font-family="Space Grotesk, sans-serif" font-size="40" font-weight="700" fill="#e7eaf1">Barber Shop Booking</text>
-  <text x="260" y="244" font-family="JetBrains Mono, monospace" font-size="16" fill="#7c8699">Appointments & customer records</text>
+  <text x="260" y="244" font-family="JetBrains Mono, monospace" font-size="16" fill="#7c8699">Appointments &amp; customer records</text>
 
   <!-- accent bar -->
   <rect x="260" y="264" width="90" height="4" rx="2" fill="#C792EA"/>
